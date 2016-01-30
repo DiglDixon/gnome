@@ -59,6 +59,14 @@ public class KeyData : Singleton<KeyData> {
 		{"/", new Vector2(11.1f, 3f)}
 	};
 
+	public Vector2 GetLocation(string s){
+		if (locations.ContainsKey (s)) {
+			return locations [s];
+		} else {
+			return Vector2.zero;
+		}
+	}
+
 	public bool IsValid(string s){
 		return locations.ContainsKey (s);
 	}

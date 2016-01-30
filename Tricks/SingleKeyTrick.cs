@@ -9,7 +9,23 @@ public class SingleKeyTrick : Trick {
 	protected override void SetName(){
 		name = "Single Key";
 	}
+
+	public override void UpdateTrickChain(GnoteBar bar, GnoteSequence cSequence, PlayerHistory history){
+		Gnote hitNote = bar.LastNote ();
+		Gnote previousNote = bar.PreviousNote ();
+		if (previousNote == null) {
+			// this is the first note, so we cool.
+			return;
+		}
+		string hitString = hitNote.GetKey ();
+		string previousString = previousNote.GetKey ();
 	
+		if (bar.ContainsNote (hitString)) {
+
+		}
+	}
+
+	// this is old
 	public override TrickResults CalculateResults (GnoteBar bar, GnoteSequence cSequence, PlayerHistory history){
 		Gnote gPrev = bar.PreviousNote ();
 		Gnote g = bar.LastNote ();

@@ -9,9 +9,9 @@ public class Gnote{
 	private ReinforcedClip rc;
 
 	public Gnote(string k, int d, AudioClip c){
-		SetTone (c);
 		SetKey (k);
 		SetDivision (d);
+		SetTone (c);
 	}
 	
 	public void SetDivision(int n){
@@ -19,6 +19,8 @@ public class Gnote{
 	}
 
 	public void SetTone(AudioClip c){
+		if(c!=null)
+			Metrognome.Instance.SetHolderActive (division, true);
 		tone = c;
 	}
 

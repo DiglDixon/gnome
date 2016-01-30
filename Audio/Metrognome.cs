@@ -19,6 +19,7 @@ public class Metrognome : Singleton<Metrognome> {
 	private int cBarCount = 0;
 
 	private List<Gnote> contents = new List<Gnote>();
+	private List<GnoteHolder> holders = new List<GnoteHolder>();
 
 	public GameObject gnoteContainer;
 	public GameObject gnotePrefab;
@@ -92,8 +93,23 @@ public class Metrognome : Singleton<Metrognome> {
 			RectTransformExtensions.SetWidth(g.GetComponent<RectTransform>(), gnoteWidth);
 			RectTransformExtensions.SetHeight(g.GetComponent<RectTransform>(), containerHeight);
 			RectTransformExtensions.SetLeftBottomPosition(g.GetComponent<RectTransform>(), new Vector2(gnoteWidth*k, 0));
-
+			
+			holders.Add (g.GetComponent<GnoteHolder>());
 			contents.Add (new Gnote(" ", k, null));
+		}
+	}
+
+	public void SetHolderActive(int index, bool v){
+		if (v) {
+			holders[index].Activate();
+		} else{
+			holders[index].Deactivate();
+		}
+	}
+
+	public void RefreshGnoteHolders(){
+		foreach (GnoteHolder gh in holders) {
+			gh.Deactivate();
 		}
 	}
 

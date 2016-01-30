@@ -48,14 +48,14 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 			return;
 		}
 
-		TrickResults res = new TrickResults();
-		for(int k = 0; k<trickList.Length;k++){
-			Debug.Log (trickList[k].name);
-			res = trickList[k].CalculateResults(cBar, cSequence, cPlayer.history);
-			if(res.trickCaption!="null"){
-				AddPendingTrick(res);
-			}
-		}
+//		TrickResults res = new TrickResults();
+//		for(int k = 0; k<trickList.Length;k++){
+//			Debug.Log (trickList[k].name);
+//			res = trickList[k].CalculateResults(cBar, cSequence, cPlayer.history);
+//			if(res.trickCaption!="null"){
+//				AddPendingTrick(res);
+//			}
+//		}
 
 	}
 
@@ -70,12 +70,17 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 	public void StartSequence(string s, int barCount){
 		cSequence = new GnoteSequence (s);
 		cBar = new GnoteBar ();
-		cMultiplier = 1;
-		cBaseScore = 0;
-		cCapped = false;
+		StartBar ();
 		cBarsRemaining = barCount;
 		barsRemainingText.text = "" + cBarsRemaining;
 		StartCoroutine ("RunSequenceMonitor");
+	}
+
+	private void StartBar(){
+		cMultiplier = 1;
+		cBaseScore = 0;
+		cCapped = false;
+		Metrognome.Instance.RefreshGnoteHolders ();
 	}
 
 	public void NewPlayerStarted(Player p){
