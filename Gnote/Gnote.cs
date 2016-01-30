@@ -2,9 +2,20 @@
 using System.Collections;
 
 
-public class Gnote : MonoBehaviour{
-	public string key = "";
-	public AudioClip tone;
+public class Gnote{
+	private string key = "";
+	private int division = -1;
+	private AudioClip tone;
+
+	public Gnote(string k, int d, AudioClip c){
+		SetTone (c);
+		SetKey (k);
+		SetDivision (d);
+	}
+	
+	public void SetDivision(int n){
+		this.division = n;
+	}
 
 	public void SetTone(AudioClip c){
 		tone = c;

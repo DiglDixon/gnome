@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class Metrognome : MonoBehaviour {
+public class Metrognome : Singleton<Metrognome> {
+
+	// this guy holds the timing stuff. Also plays the beat.
 
 	private float loopLength, invLoopLength;
 
@@ -14,6 +16,7 @@ public class Metrognome : MonoBehaviour {
 
 	private float cLoopTime = 0;
 	private int cDivision = 0;
+	private int cBarCount = 0;
 
 	private List<Gnote> contents = new List<Gnote>();
 
@@ -21,15 +24,57 @@ public class Metrognome : MonoBehaviour {
 	public GameObject gnotePrefab;
 	public Slider timeTracker;
 
-	// Use this for initialization
-	void Start () {
-		SetLoopLength (1.5f);
-		SetLoopDivisions (32);
-		StartCoroutine ("RunLoop");
-		ConstructGnotes ();
+	public BeatBar defaultBeatBar;
+	private BeatBar cBeat;
+
+	private bool _isLoopStart;
+	public bool isLoopStart{
+		set{
+			_isLoopStart = value;
+		}
+		get{
+			return _isLoopStart;
+		}
 	}
 
-	private void ConstructGnotes(){
+	// Use this for initialization
+	void Start () {
+		SetLoopLength (0.9f);
+		SetLoopDivisions (64);
+		ConstructGnoteHolders ();
+		SetBeat (defaultBeatBar);
+//		StartLoop ();
+	}
+
+	public void SetBeat(BeatBar b){
+		cBeat = b;
+	}
+
+	public void StartBeat(){
+		StopLoop ();
+		SetBeat (0);
+		StartLoop ();
+	}
+
+	public void StopBeat(){
+		StopLoop ();
+		ResetBeatVariables ();
+	}
+
+	private void ResetBeatVariables(){
+		cDivision = 0;
+		cLoopTime = 0;
+		cBarCount = 0;
+	}
+
+	private void SetBeat(int index){
+		AudioClip[] clips = cBeat.GetBar (index);
+		for(int k = 0; k<clips.Length;k++){
+			contents[k*4].SetTone(clips[k]);
+		}
+	}
+
+	private void ConstructGnoteHolders(){
 		float containerWidth = RectTransformExtensions.GetWidth (gnoteContainer.GetComponent<RectTransform> ());
 		float containerHeight = RectTransformExtensions.GetHeight (gnoteContainer.GetComponent<RectTransform> ());
 		float gnoteWidth = containerWidth / loopDivisions;
@@ -70,10 +115,26 @@ public class Metrognome : MonoBehaviour {
 		return Mathf.FloorToInt (t * invLoopLength * loopDivisions);
 	}
 
+	private void StartLoop(){
+		StartCoroutine ("RunLoop");
+	}
+
+	private void StopLoop(){
+		StopCoroutine ("RunLoop");
+	}
+
 	private IEnumerator RunLoop(){
 		int pDivision = 0;
+		float pLoopTime = 0;
 		while (true) {
+			pLoopTime = cLoopTime;
 			cLoopTime = (cLoopTime + Time.deltaTime) % loopLength;
+			if(pLoopTime>cLoopTime){
+				isLoopStart = true;
+				HandleBarChange();
+			}else{
+				isLoopStart = false;
+			}
 			timeTracker.value = cLoopTime * invLoopLength;
 			pDivision = cDivision;
 			cDivision = CalcDivision(cLoopTime);
@@ -87,6 +148,11 @@ public class Metrognome : MonoBehaviour {
 	private void HandleDivisionChange(int p, int c){
 		// some sort of handler to play the sounds we may have skipped over at high speeds and/or low framerates.
 		contents [cDivision].CallNote ();
+	}
+
+	private void HandleBarChange(){
+		cBarCount = (cBarCount + 1) % 4;
+		SetBeat (cBarCount);
 	}
 
 }
