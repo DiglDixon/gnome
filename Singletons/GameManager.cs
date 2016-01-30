@@ -7,6 +7,8 @@ public class GameManager : Singleton<GameManager> {
 	private List<Player> players = new List<Player>();
 	private bool inCypher = false;
 
+	private int barCount = 20;
+
 	void Start(){
 		players.Add (new Player (0));
 		players.Add (new Player (1));
@@ -33,16 +35,16 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
-	private void StartCypher(){
+	public void StartCypher(){
 		inCypher = true;
 //		KeyValue anchorKey = 
 		ScoreKeeper.Instance.NewPlayerStarted (players [0]);
-		ScoreKeeper.Instance.StartSequence ("k");
+		ScoreKeeper.Instance.StartSequence ("k", barCount);
 		// do something. Scorekeeper starts.
 	}
 
 
-	private void EndCypher(){
+	public void EndCypher(){
 		inCypher = false;
 		// Scorekeeper ends. Beat keeps going, wait for player to tap in.
 	}

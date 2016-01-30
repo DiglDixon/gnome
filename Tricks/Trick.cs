@@ -43,3 +43,13 @@ public class TrickResults{
 		trickCaption = "null";
 	}
 }
+
+public class WasAnchorKeyResult : TrickResults{
+	public WasAnchorKeyResult() : base(0, 0, "DERP ANCHOR KEY") {
+	}
+}
+
+public class WasSameKeyResult : TrickResults{
+	public WasSameKeyResult() : base(0, 0, "DERPPP SAME KEY") {
+	}
+}

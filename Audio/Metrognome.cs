@@ -121,6 +121,10 @@ public class Metrognome : Singleton<Metrognome> {
 	public int GetDivision(){
 		return cDivision;
 	}
+	
+	public int GetDivisionsLeft(){
+		return contents.Count - cDivision;
+	}
 
 	public int CalcDivision(float t){
 		return Mathf.FloorToInt (t * invLoopLength * loopDivisions);

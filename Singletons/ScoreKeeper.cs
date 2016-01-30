@@ -17,6 +17,14 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 
 	private float cMultiplier = 1;
 	private float cBaseScore = 0;
+	private bool cCapped = false;
+	private int cBarsRemaining = -1;
+
+	public Text barsRemainingText;
+	public Text sequencePointsText;
+
+
+	private int capLeeway = 6;
 
 	private Trick[] trickList = {
 		new SingleKeyTrick()
@@ -29,8 +37,17 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		// calculate everything.
 		keyboardAudio.HandleKeyPress (s);
 		AudioClip c = keyboardAudio.GetKeySound (s);
+		
+		if (cCapped) {
+			return;
+		}
 		cBar.AddGnote(new Gnote(s, Metrognome.Instance.GetDivision(), c));
 		// for each trick, calculate and add to multi and base
+		if (IsCappingInput (s)) {
+			SetCapped();
+			return;
+		}
+
 		TrickResults res = new TrickResults();
 		for(int k = 0; k<trickList.Length;k++){
 			Debug.Log (trickList[k].name);
@@ -42,11 +59,23 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 
 	}
 
-	public void StartSequence(string s){
+	private bool IsCappingInput(string s){
+		return (s == cSequence.anchorKey) && (Metrognome.Instance.GetDivisionsLeft()<=capLeeway);
+	}
+
+	private void SetCapped(){
+		cCapped = true;
+	}
+
+	public void StartSequence(string s, int barCount){
 		cSequence = new GnoteSequence (s);
 		cBar = new GnoteBar ();
 		cMultiplier = 1;
 		cBaseScore = 0;
+		cCapped = false;
+		cBarsRemaining = barCount;
+		barsRemainingText.text = "" + cBarsRemaining;
+		StartCoroutine ("RunSequenceMonitor");
 	}
 
 	public void NewPlayerStarted(Player p){
@@ -54,14 +83,43 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 	}
 
 	public void BarFinished(){
-		cSequence.AddBar (cBar);
-		cBar = new GnoteBar ();
+		if (cCapped) {
+			cSequence.AddScore(cMultiplier * cBaseScore);
+			sequencePointsText.text = cSequence.totalScore+"";
+		}
+		cCapped = false;
+		barsRemainingText.text = "" + cBarsRemaining;
+		cBarsRemaining -= 1;
+		if (cBarsRemaining < 0) {
+			SequenceFinished ();
+		} else {
+			cSequence.AddBar (cBar);
+			cBar = new GnoteBar ();
+		}
 	}
 
 	public void SequenceFinished(){
+		sequencePointsText.text = cSequence.totalScore+"";
 		cPlayer.history.AddSequence (cSequence);
-		cSequence = null;
+		StopCoroutine ("RunSequenceMonitor");
+		Leaderboard.Instance.AddEntry(cPlayer.playerName, cSequence.totalScore);
+		GameManager.Instance.EndCypher ();
 	}
+
+	private IEnumerator RunSequenceMonitor(){
+		yield return null;
+		while (true) {
+			if (Metrognome.Instance.isLoopStart) {
+				BarFinished ();
+			}
+			yield return null;
+		}
+	}
+
+
+	/// <summary>
+	/// / This stuff should be somewhere else
+	/// </summary>
 
 	private float totalPendingHeight = 0f;
 	private int pendingIndex = 0;
@@ -92,7 +150,6 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		float t = 0f, v = 0f, dur = 0.15f, invDur = 1f / dur;
 		float startHeight = RectTransformExtensions.GetHeight (pendingTricksParent);
 		float diff = totalPendingHeight-startHeight;
-		Debug.Log ("Diff: " + diff);
 		while (v<1) {
 			t+=Time.deltaTime;
 			v = Mathf.Clamp(invDur*t, 0, 1);

@@ -4,7 +4,15 @@ using System.Collections;
 public class Player {
 
 	private int playerIndex;
-	private string playerName;
+	private string _playerName;
+	public string playerName{
+		get{
+			return _playerName;
+		}
+		set{
+			_playerName = value;
+		}
+	}
 	private KeyValue entranceKey;
 	private PlayerHistory _history;
 	public PlayerHistory history{

@@ -6,7 +6,19 @@ public class GnoteSequence {
 	
 	private List<GnoteBar> gnoteBars = new List<GnoteBar>();
 	
-	private int totalScore = 0;
+	private float _totalScore = 0;
+	public float totalScore{
+		set{
+			_totalScore = value;
+		}
+		get{
+			return _totalScore;
+		}
+	}
+
+	public void AddScore(float s){
+		totalScore += s;
+	}
 	
 	private string _anchorKey;
 	public string anchorKey{

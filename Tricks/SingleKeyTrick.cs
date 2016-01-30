@@ -11,7 +11,20 @@ public class SingleKeyTrick : Trick {
 	}
 	
 	public override TrickResults CalculateResults (GnoteBar bar, GnoteSequence cSequence, PlayerHistory history){
+		Gnote gPrev = bar.PreviousNote ();
 		Gnote g = bar.LastNote ();
+		if (gPrev != null) {
+			if (g.GetKey () == gPrev.GetKey ()) {
+				return new WasSameKeyResult();
+			}
+		}
+		
+		if (g != null) {
+			if (g.GetKey () == cSequence.anchorKey) {
+				return new WasAnchorKeyResult ();
+			}
+		}
+
 		KeyScoreValue ksv = KeyData.Instance.GetKeyScoreValue (g.GetKey ());
 		if (ksv != null) {
 			string trickCaption = ksv.name;
