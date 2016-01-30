@@ -33,7 +33,7 @@ public class TrickResults{
 	public string trickCaption;
 	public TrickResults(float score, float multi, string caption){
 		baseScore = score;
-		multiplier = score;
+		multiplier = multi;
 		trickCaption = caption;
 	}
 	public TrickResults(){

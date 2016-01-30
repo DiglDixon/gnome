@@ -6,6 +6,7 @@ public class Gnote{
 	private string key = "";
 	private int division = -1;
 	private AudioClip tone;
+	private ReinforcedClip rc;
 
 	public Gnote(string k, int d, AudioClip c){
 		SetTone (c);
@@ -19,6 +20,10 @@ public class Gnote{
 
 	public void SetTone(AudioClip c){
 		tone = c;
+	}
+
+	public void SetReinforcedClip(ReinforcedClip r){
+		rc = r;
 	}
 
 	public void SetKey(string v){

@@ -24,13 +24,6 @@ public class GameManager : Singleton<GameManager> {
 				PlayerEntranceRequested(p);
 			}
 		}
-
-		if (Input.GetKeyDown (KeyCode.Q)) {
-			Metrognome.Instance.StartBeat();
-		}
-		if (Input.GetKeyDown (KeyCode.W)) {
-			Metrognome.Instance.StopBeat();
-		}
 	}
 
 	public void KeyReceived(string s){

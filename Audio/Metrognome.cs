@@ -24,8 +24,12 @@ public class Metrognome : Singleton<Metrognome> {
 	public GameObject gnotePrefab;
 	public Slider timeTracker;
 
+	// This is for lovely dynamic backing tracks that are freaking out.
 	public BeatBar defaultBeatBar;
 	private BeatBar cBeat;
+
+	// This is for a static backing track;
+	private AudioSource trackPlayer;
 
 	private bool _isLoopStart;
 	public bool isLoopStart{
@@ -39,7 +43,8 @@ public class Metrognome : Singleton<Metrognome> {
 
 	// Use this for initialization
 	void Start () {
-		SetLoopLength (0.9f);
+		trackPlayer = GetComponent<AudioSource> ();
+		SetLoopLength (1.4f);
 		SetLoopDivisions (64);
 		ConstructGnoteHolders ();
 		SetBeat (defaultBeatBar);
@@ -53,10 +58,13 @@ public class Metrognome : Singleton<Metrognome> {
 	public void StartBeat(){
 		StopLoop ();
 		SetBeat (0);
+//		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
+//		trackPlayer.Play ();
 		StartLoop ();
 	}
 
 	public void StopBeat(){
+		trackPlayer.Stop ();
 		StopLoop ();
 		ResetBeatVariables ();
 	}
@@ -91,9 +99,11 @@ public class Metrognome : Singleton<Metrognome> {
 
 	public void AddGnote(string key){
 		contents [GetDivision ()].SetKey (key);
+		Debug.Log ("Added a Gnote");
 	}
 
 	public void AddGnote(string key, AudioClip c){
+		Debug.Log ("Added a Gnote");
 		Gnote g = contents [GetDivision ()]; 
 		g.SetKey (key);
 		g.SetTone (c);

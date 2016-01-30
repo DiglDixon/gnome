@@ -27,7 +27,7 @@ public class KeyboardAudioMap : MonoBehaviour {
 		Debug.Log ("Created new association: " + key + " :: " + c);
 		keysAssigned.Add (key);
 		soundsAssigned.Add (c);
-		metrognome.AddGnote (key, c);
+//		metrognome.AddGnote (key, c);
 		return soundsAssigned [soundsAssigned.Count - 1];
 	}
 

@@ -13,8 +13,12 @@ public class SingleKeyTrick : Trick {
 	public override TrickResults CalculateResults (GnoteBar bar, GnoteSequence cSequence, PlayerHistory history){
 		Gnote g = bar.LastNote ();
 		KeyScoreValue ksv = KeyData.Instance.GetKeyScoreValue (g.GetKey ());
-		string trickCaption = ksv.name;
-		float trickScore = ksv.points;
-		return new TrickResults(trickScore, 0, trickCaption);
+		if (ksv != null) {
+			string trickCaption = ksv.name;
+			float trickScore = ksv.points;
+			return new TrickResults(trickScore, 0, trickCaption);
+		} else {
+			return new TrickResults();
+		}
 	}
 }

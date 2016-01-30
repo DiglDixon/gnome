@@ -59,6 +59,10 @@ public class KeyData : Singleton<KeyData> {
 		{"/", new Vector2(11.1f, 3f)}
 	};
 
+	public bool IsValid(string s){
+		return locations.ContainsKey (s);
+	}
+
 	private KeyScoreValue bullseye = new KeyScoreValue(30, "Bullseye");
 	private KeyScoreValue bullsballs = new KeyScoreValue(7, "Bullsballs");
 	private KeyScoreValue normal = new KeyScoreValue(10, "Key");
@@ -67,7 +71,11 @@ public class KeyData : Singleton<KeyData> {
 	private Dictionary<string, KeyScoreValue> scores;
 
 	public KeyScoreValue GetKeyScoreValue(string s){
-		return scores [s];
+		if (scores.ContainsKey (s)) {
+			return scores [s];
+		} else {
+			return null;
+		}
 	}
 	
 	void InitialiseScores(){

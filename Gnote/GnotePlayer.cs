@@ -11,6 +11,8 @@ public class GnotePlayer : Singleton<GnotePlayer> {
 	}
 
 	public void RequestOneShot(AudioClip c){
+//		outputs [0].PlayOneShot (c);
+		outputs[outputIndex].Stop();
 		outputs[outputIndex].clip = c;
 		outputs[outputIndex].Play();
 		outputIndex = (outputIndex + 1) % outputs.Length;

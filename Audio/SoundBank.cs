@@ -8,7 +8,7 @@ public class SoundBank : Singleton<SoundBank> {
 	public AudioClip[] bassSamplesLarge;
 
 	public AudioClip GetRandomSample(){
-		return GetBassSample (Random.Range (0, 2), Random.Range (0, 7));
+		return GetBassSample (0, Random.Range (0, 7));
 	}
 
 	public AudioClip GetBassSample(int length, int tone){
