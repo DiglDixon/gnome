@@ -43,7 +43,7 @@ public class Metrognome : Singleton<Metrognome> {
 		SetLoopDivisions (64);
 		ConstructGnoteHolders ();
 		SetBeat (defaultBeatBar);
-//		StartLoop ();
+		StartBeat ();
 	}
 
 	public void SetBeat(BeatBar b){
@@ -84,7 +84,8 @@ public class Metrognome : Singleton<Metrognome> {
 			RectTransformExtensions.SetWidth(g.GetComponent<RectTransform>(), gnoteWidth);
 			RectTransformExtensions.SetHeight(g.GetComponent<RectTransform>(), containerHeight);
 			RectTransformExtensions.SetLeftBottomPosition(g.GetComponent<RectTransform>(), new Vector2(gnoteWidth*k, 0));
-			contents.Add (g.GetComponent<Gnote>());
+
+			contents.Add (new Gnote(" ", k, null));
 		}
 	}
 

@@ -59,10 +59,10 @@ public class KeyData : Singleton<KeyData> {
 		{"/", new Vector2(11.1f, 3f)}
 	};
 
-	private KeyScoreValue bullseye = new KeyScoreValue(30, "bullseye");
-	private KeyScoreValue bullsballs = new KeyScoreValue(7, "bullsballs");
-	private KeyScoreValue normal = new KeyScoreValue(10, "key");
-	private KeyScoreValue cornerKey = new KeyScoreValue(15, "corner key");
+	private KeyScoreValue bullseye = new KeyScoreValue(30, "Bullseye");
+	private KeyScoreValue bullsballs = new KeyScoreValue(7, "Bullsballs");
+	private KeyScoreValue normal = new KeyScoreValue(10, "Key");
+	private KeyScoreValue cornerKey = new KeyScoreValue(15, "Corner Key");
 	
 	private Dictionary<string, KeyScoreValue> scores;
 
@@ -124,8 +124,10 @@ public class KeyData : Singleton<KeyData> {
 
 public class KeyScoreValue{
 	
-	float points;
-	string name;
+	private float _points;
+	private string _name;
+	public float points{get{ return _points; } set{_points = value;}}
+	public string name{get{ return _name; } set{_name = value;}}
 	
 	public KeyScoreValue(float p, string n){
 		points = p;

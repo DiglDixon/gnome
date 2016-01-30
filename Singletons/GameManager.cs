@@ -43,7 +43,8 @@ public class GameManager : Singleton<GameManager> {
 	private void StartCypher(){
 		inCypher = true;
 //		KeyValue anchorKey = 
-//		ScoreKeeper.Instance.StartSequence(
+		ScoreKeeper.Instance.NewPlayerStarted (players [0]);
+		ScoreKeeper.Instance.StartSequence ("k");
 		// do something. Scorekeeper starts.
 	}
 
@@ -59,11 +60,13 @@ public class GameManager : Singleton<GameManager> {
 
 	public void PlayerEntranceRequested(Player p){
 		StartCoroutine ("RunPlayerEntrance");
+		Debug.Log ("Player requested entrance oooh shit! ");
 	}
 
 	private IEnumerator RunPlayerEntrance(){
 		while (!Metrognome.Instance.isLoopStart) {
 			yield return null;
+			Debug.Log ("Waiting for entrance...");
 		}
 		StartCypher ();
 	}

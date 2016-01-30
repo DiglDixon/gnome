@@ -18,5 +18,11 @@ public class GnoteBar {
 		score = s;
 	}
 
+	public Gnote LastNote(){
+		if(gnotes.Count==0)
+			return null;
+		return gnotes[gnotes.Count-1];
+	}
+
 }
 
