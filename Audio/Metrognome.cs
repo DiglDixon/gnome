@@ -44,7 +44,7 @@ public class Metrognome : Singleton<Metrognome> {
 	// Use this for initialization
 	void Start () {
 		trackPlayer = GetComponent<AudioSource> ();
-		SetLoopLength (1.4f);
+		SetLoopLength (4f);
 		SetLoopDivisions (64);
 		ConstructGnoteHolders ();
 		SetBeat (defaultBeatBar);
@@ -58,8 +58,8 @@ public class Metrognome : Singleton<Metrognome> {
 	public void StartBeat(){
 		StopLoop ();
 		SetBeat (0);
-//		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
-//		trackPlayer.Play ();
+		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
+		trackPlayer.Play ();
 		StartLoop ();
 	}
 
@@ -162,7 +162,7 @@ public class Metrognome : Singleton<Metrognome> {
 
 	private void HandleDivisionChange(int p, int c){
 		// some sort of handler to play the sounds we may have skipped over at high speeds and/or low framerates.
-		contents [cDivision].CallNote ();
+//		contents [cDivision].CallNote ();
 	}
 
 	private void HandleBarChange(){
