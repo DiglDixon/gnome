@@ -17,6 +17,9 @@ public class Metrognome : Singleton<Metrognome> {
 	private float cLoopTime = 0;
 	private int cDivision = 0;
 	private int cBarCount = 0;
+	private int cBarLength = 64;
+
+	private int keyHitLeeway = 1;
 
 	private List<Gnote> contents = new List<Gnote>();
 	private List<GnoteHolder> holders = new List<GnoteHolder>();
@@ -50,22 +53,40 @@ public class Metrognome : Singleton<Metrognome> {
 		ConstructGnoteHolders ();
 		SetBeat (defaultBeatBar);
 		StartBeat ();
+		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
+		trackPlayer.Play ();
+	}
+
+	public bool GnotePositionsAreProximate(int one, int two){
+		int dif = one - two;
+//		Debug.Log (" one : " + one + " two : " + two+" :: "+(dif <= keyHitLeeway && dif >= -keyHitLeeway));
+		return (dif <= keyHitLeeway && dif >= -keyHitLeeway);
+	}
+	
+	public bool GnotesProximate(Gnote one, Gnote two){
+		return GnotePositionsAreProximate (one.GetDivision (), two.GetDivision ());
+	}
+
+	public bool GnoteIsProximateToCap(Gnote g){
+		return GnotePositionsAreProximate (g.GetDivision(), cBarLength);
 	}
 
 	public void SetBeat(BeatBar b){
 		cBeat = b;
 	}
+	
+	public void RestartBeat(){
+		ResetBeatVariables ();
+	}
 
 	public void StartBeat(){
 		StopLoop ();
 		SetBeat (0);
-		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
-		trackPlayer.Play ();
 		StartLoop ();
 	}
 
 	public void StopBeat(){
-		trackPlayer.Stop ();
+//		trackPlayer.Stop ();
 		StopLoop ();
 		ResetBeatVariables ();
 	}
@@ -99,6 +120,14 @@ public class Metrognome : Singleton<Metrognome> {
 		}
 	}
 
+	public void SetHolderHit(int index){
+		holders[GetDivision()].Hit();
+	}
+
+	public void SetHolderActive(){
+		holders[GetDivision()].Activate();
+	}
+
 	public void SetHolderActive(int index, bool v){
 		if (v) {
 			holders[index].Activate();
@@ -108,8 +137,20 @@ public class Metrognome : Singleton<Metrognome> {
 	}
 
 	public void RefreshGnoteHolders(){
-		foreach (GnoteHolder gh in holders) {
-			gh.Deactivate();
+		GnoteHolder gh;
+		for (int k = 0; k<holders.Count; k++) {
+			gh = holders[k];
+			if(k>cBarLength){
+				gh.Deactivate();
+			}else{
+				gh.SetOob(true);
+			}
+		}
+	}
+
+	public void SetGnoteHolders(GnoteBar b){
+		foreach(Gnote g in b.GetGnotes()){
+			SetHolderActive(g.GetDivision(), true);
 		}
 	}
 
@@ -127,6 +168,20 @@ public class Metrognome : Singleton<Metrognome> {
 
 	private void SetLoopDivisions(int n){
 		loopDivisions = n;
+		cBarLength = -1;
+	}
+
+	public void SetBarLength(){
+		SetBarLength(GetDivision ());
+	}
+
+	public void SetBarLength(int n){
+		Debug.Log ("Set bar length: " + n);
+		cBarLength = n;
+	}
+
+	public int GetBarLength(){
+		return cBarLength;
 	}
 
 	private void SetLoopLength(float l){
@@ -147,6 +202,7 @@ public class Metrognome : Singleton<Metrognome> {
 	}
 
 	private void StartLoop(){
+		Debug.Log ("Loop started!");
 		StartCoroutine ("RunLoop");
 	}
 

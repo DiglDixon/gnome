@@ -24,7 +24,7 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 	public Text sequencePointsText;
 
 
-	private int capLeeway = 6;
+	private int capLeeway = 2;
 
 	private Trick[] trickList = {
 		new SingleKeyTrick()
@@ -41,26 +41,42 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		if (cCapped) {
 			return;
 		}
-		cBar.AddGnote(new Gnote(s, Metrognome.Instance.GetDivision(), c));
-		// for each trick, calculate and add to multi and base
-		if (IsCappingInput (s)) {
-			SetCapped();
-			return;
+
+
+		Gnote newGnote = new Gnote (s, Metrognome.Instance.GetDivision (), c);
+		cBar.AddGnote(newGnote);
+		GnoteBar pBar = cSequence.GetPreviousBar ();
+		if (pBar == null) {
+			// starting a sequence
+		} else {
+			cBar.AnalyseNote (newGnote, pBar);
+		}
+		
+		if (IsAnchorInput (s)) {
+			AnchorCompleteBar(IsCappingInput(newGnote));
 		}
 
-//		TrickResults res = new TrickResults();
-//		for(int k = 0; k<trickList.Length;k++){
-//			Debug.Log (trickList[k].name);
-//			res = trickList[k].CalculateResults(cBar, cSequence, cPlayer.history);
-//			if(res.trickCaption!="null"){
-//				AddPendingTrick(res);
-//			}
-//		}
 
 	}
 
-	private bool IsCappingInput(string s){
-		return (s == cSequence.anchorKey) && (Metrognome.Instance.GetDivisionsLeft()<=capLeeway);
+	private bool IsAnchorInput(string s){
+		return (s == cSequence.anchorKey);
+	}
+
+	private bool IsCappingInput(Gnote g){
+		return (g.GetKey() == cSequence.anchorKey) && (Metrognome.Instance.GnoteIsProximateToCap(g));
+	}
+
+	private void AnchorCompleteBar(bool capped){
+		if (capped) {
+			cSequence.AddScore (cMultiplier * cBaseScore);
+			sequencePointsText.text = cSequence.totalScore + "";
+			Displays.Instance.SetBarHit (true);
+			Debug.Log ("CAPPED!");
+		} else {
+			Debug.Log ("not capped :(");
+		}
+		BarFinished();
 	}
 
 	private void SetCapped(){
@@ -69,7 +85,7 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 
 	public void StartSequence(string s, int barCount){
 		cSequence = new GnoteSequence (s);
-		cBar = new GnoteBar ();
+		Displays.Instance.SetAnchorText (s);
 		StartBar ();
 		cBarsRemaining = barCount;
 		barsRemainingText.text = "" + cBarsRemaining;
@@ -80,7 +96,11 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		cMultiplier = 1;
 		cBaseScore = 0;
 		cCapped = false;
-		Metrognome.Instance.RefreshGnoteHolders ();
+		cBar = new GnoteBar ();
+		GnoteBar pBar = cSequence.GetPreviousBar ();
+		if (pBar != null) {
+			Metrognome.Instance.SetGnoteHolders(pBar);
+		}
 	}
 
 	public void NewPlayerStarted(Player p){
@@ -88,19 +108,18 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 	}
 
 	public void BarFinished(){
-		if (cCapped) {
-			cSequence.AddScore(cMultiplier * cBaseScore);
-			sequencePointsText.text = cSequence.totalScore+"";
-		}
 		cCapped = false;
 		barsRemainingText.text = "" + cBarsRemaining;
 		cBarsRemaining -= 1;
+		Metrognome.Instance.RefreshGnoteHolders ();
 		if (cBarsRemaining < 0) {
 			SequenceFinished ();
 		} else {
 			cSequence.AddBar (cBar);
-			cBar = new GnoteBar ();
+			StartBar();
 		}
+		Metrognome.Instance.SetBarLength ();
+		Metrognome.Instance.RestartBeat ();
 	}
 
 	public void SequenceFinished(){

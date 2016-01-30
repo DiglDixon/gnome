@@ -9,6 +9,60 @@ public class KeyData : Singleton<KeyData> {
 		InitialiseScores ();
 	}
 
+	
+	private string[] keys = {
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"0",
+		"-",
+		"=",
+		"q",
+		"w",
+		"e",
+		"r",
+		"t",
+		"y",
+		"u",
+		"i",
+		"o",
+		"p",
+		"[",
+		"]",
+		"a",
+		"s",
+		"d",
+		"f",
+		"g",
+		"h",
+		"j",
+		"k",
+		"l",
+		";",
+		"'",
+		"z",
+		"x",
+		"c",
+		"v",
+		"b",
+		"n",
+		"m",
+		",",
+		".",
+		"/",
+	};
+	
+	public string GetRandomKey(){
+		return keys [Random.Range (0, keys.Length)];
+	}
+
+
 	// 12 across, 4 down. 0,0 top left
 	private Dictionary<string, Vector2> locations =
 	new Dictionary<string, Vector2>() {
@@ -58,7 +112,6 @@ public class KeyData : Singleton<KeyData> {
 		{".", new Vector2(10.1f, 3f)},
 		{"/", new Vector2(11.1f, 3f)}
 	};
-
 	public Vector2 GetLocation(string s){
 		if (locations.ContainsKey (s)) {
 			return locations [s];

@@ -10,6 +10,9 @@ public class Displays : Singleton<Displays> {
 	public Text uniqueKeysText;
 	public Text keyCountText;
 	public Text keyDistanceText;
+	public Text BarHitText;
+	public Text BarMissedText;
+	public Text AnchorText;
 
 	public void SetUniqueKeys(int n){
 		uniqueKeysText.text = n.ToString ();
@@ -21,6 +24,15 @@ public class Displays : Singleton<Displays> {
 	
 	public void SetKeyCount(int n){
 		keyCountText.text = n.ToString ();
+	}
+
+	public void SetBarHit(bool v){
+		BarHitText.gameObject.SetActive (v);
+		BarMissedText.gameObject.SetActive (!v);
+	}
+
+	public void SetAnchorText(string a){
+		AnchorText.text = a;
 	}
 
 }

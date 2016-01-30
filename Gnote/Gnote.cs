@@ -17,10 +17,12 @@ public class Gnote{
 	public void SetDivision(int n){
 		this.division = n;
 	}
+	
+	public int GetDivision(){
+		return division;
+	}
 
 	public void SetTone(AudioClip c){
-		if(c!=null)
-			Metrognome.Instance.SetHolderActive (division, true);
 		tone = c;
 	}
 

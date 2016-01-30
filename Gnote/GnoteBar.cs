@@ -5,12 +5,15 @@ using System.Collections.Generic;
 public class GnoteBar {
 	
 	private List<Gnote> gnotes = new List<Gnote>();
+	public List<Gnote> GetGnotes(){
+		return gnotes;
+	}
 	private List<string> strings = new List<string>();
 	private int _uniqueKeyCount = 0;
 	private int _keyCount = 0;
 	private float _keyDistances = 0;
 
-	private int keyHitLeeway = 3;
+	private int keyHitLeeway = 2;
 	
 	private int uniqueKeyCount{
 		set{_uniqueKeyCount = value;
@@ -24,6 +27,8 @@ public class GnoteBar {
 		set{_keyDistances = value;
 			Displays.Instance.SetKeyDistance(_keyDistances);
 		}get{return _keyDistances;}}
+
+
 
 
 
@@ -45,7 +50,6 @@ public class GnoteBar {
 
 	public void AddGnote(Gnote g){
 		gnotes.Add (g);
-		AnalyseNote (g.GetKey ());
 		strings.Add (g.GetKey ());
 	}
 
@@ -66,15 +70,22 @@ public class GnoteBar {
 		return strings.Contains (s);
 	}
 
-	private void AnalyseNote(string k){
+	public bool GnoteMatches(Gnote n){
+		Gnote g;
+		for (int k = 0; k< gnotes.Count; k++) {
+			g = gnotes[k];
+			if(g.GetKey()==n.GetKey() && Metrognome.Instance.GnotesProximate(g, n))
+				return true;
+		}
+		return false;
+	}
+
+	public void AnalyseNote(Gnote cGnote, GnoteBar pBar){
+		if (!pBar.GnoteMatches (cGnote))
+			return;
 		keyCount++;
-		if (!strings.Contains (k)) {
-			uniqueKeyCount++;
-		}
-		Gnote lastNote = PreviousNote ();
-		if(lastNote!=null){
-			keyDistances += DistanceBetweenKeys (k, lastNote.GetKey ());
-		}
+		keyDistances += DistanceBetweenKeys (cGnote.GetKey(), LastNote().GetKey ());
+		Metrognome.Instance.SetHolderHit (cGnote.GetDivision ());
 	}
 
 	private float DistanceBetweenKeys(string one, string two){

@@ -6,9 +6,11 @@ public class SoundBank : Singleton<SoundBank> {
 	public AudioClip[] bassSamplesSmall;
 	public AudioClip[] bassSamplesMedium;
 	public AudioClip[] bassSamplesLarge;
+	public AudioClip[] hipHopSamples;
 
 	public AudioClip GetRandomSample(){
-		return GetBassSample (0, Random.Range (0, 7));
+		return GetRandomSample (hipHopSamples);
+//		return GetBassSample (0, Random.Range (0, 7));
 	}
 
 	public AudioClip GetBassSample(int length, int tone){
@@ -23,5 +25,9 @@ public class SoundBank : Singleton<SoundBank> {
 		}
 		Debug.LogWarning("Couldn't switch bass length: "+length);
 		return null;
+	}
+
+	private AudioClip GetRandomSample(AudioClip[] ar){
+		return ar[Random.Range(0, ar.Length)];
 	}
 }

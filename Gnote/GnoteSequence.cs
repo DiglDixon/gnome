@@ -37,5 +37,11 @@ public class GnoteSequence {
 	public void AddBar(GnoteBar b){
 		gnoteBars.Add (b);
 	}
+
+	public GnoteBar GetPreviousBar(){
+		if (gnoteBars.Count == 0)
+			return null;
+		return gnoteBars[gnoteBars.Count-1];
+	}
 	
 }

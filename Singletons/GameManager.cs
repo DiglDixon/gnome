@@ -7,7 +7,7 @@ public class GameManager : Singleton<GameManager> {
 	private List<Player> players = new List<Player>();
 	private bool inCypher = false;
 
-	private int barCount = 20;
+	private int barCount = 40;
 
 	void Start(){
 		players.Add (new Player (0));
@@ -39,7 +39,7 @@ public class GameManager : Singleton<GameManager> {
 		inCypher = true;
 //		KeyValue anchorKey = 
 		ScoreKeeper.Instance.NewPlayerStarted (players [0]);
-		ScoreKeeper.Instance.StartSequence ("k", barCount);
+		ScoreKeeper.Instance.StartSequence (KeyData.Instance.GetRandomKey (), barCount);
 		// do something. Scorekeeper starts.
 	}
 
@@ -59,9 +59,9 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	private IEnumerator RunPlayerEntrance(){
+		Debug.Log ("Request received, waiting for entrance...");
 		while (!Metrognome.Instance.isLoopStart) {
 			yield return null;
-			Debug.Log ("Waiting for entrance...");
 		}
 		StartCypher ();
 	}
