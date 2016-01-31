@@ -14,6 +14,8 @@ public class GnoteBar {
 	private float _keyDistances = 0;
 
 	private int keyHitLeeway = 2;
+
+	private Texture myText;
 	
 	private int uniqueKeyCount{
 		set{_uniqueKeyCount = value;
@@ -70,22 +72,28 @@ public class GnoteBar {
 		return strings.Contains (s);
 	}
 
-	public bool GnoteMatches(Gnote n){
-		Gnote g;
-		for (int k = 0; k< gnotes.Count; k++) {
-			g = gnotes[k];
-			if(g.GetKey()==n.GetKey() && Metrognome.Instance.GnotesProximate(g, n))
-				return true;
+	public void AnalyseNote(Gnote cGnote, GnoteBar cBar, GnoteBar pBar){
+		Gnote matchGnote = Metrognome.Instance.GetMatch (cGnote, pBar);
+		if (matchGnote==null) {
+			// No match
+			// some sort of sound if they were on a streak.
+		} else {
+			// Match!
+			matchGnote.SetMatched(true);
+			KeyScoreValue ksv = KeyData.Instance.GetKeyScoreValue(cGnote.GetKey());
+			string comment = "+"+ksv.points+"\n"+ksv.name;
+			keyCount++;
+			if(gnotes.Contains(cGnote)){
+			}else{
+				uniqueKeyCount++;
+				cGnote.scoreComment += "\nUNIQUE";
+			}
+			cGnote.scoreComment = comment;
+			cGnote.score = ksv.points;
+			keyDistances += DistanceBetweenKeys (cGnote.GetKey(), LastNote().GetKey ());
+			Metrognome.Instance.SetHolderHit (cGnote.GetDivision ());
+			Displays.Instance.GnoteMatch (cGnote);
 		}
-		return false;
-	}
-
-	public void AnalyseNote(Gnote cGnote, GnoteBar pBar){
-		if (!pBar.GnoteMatches (cGnote))
-			return;
-		keyCount++;
-		keyDistances += DistanceBetweenKeys (cGnote.GetKey(), LastNote().GetKey ());
-		Metrognome.Instance.SetHolderHit (cGnote.GetDivision ());
 	}
 
 	private float DistanceBetweenKeys(string one, string two){

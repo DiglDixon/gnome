@@ -5,17 +5,20 @@ using System.Collections.Generic;
 public class GameManager : Singleton<GameManager> {
 
 	private List<Player> players = new List<Player>();
+	private Player playerOne, playerTwo;
 	private bool inCypher = false;
+
+	private Player cPlayer;
 
 	private int barCount = 40;
 
 	void Start(){
-		players.Add (new Player (0));
-		players.Add (new Player (1));
-		GetPlayer (0).SetName ("MC BASHA");
-		GetPlayer (1).SetName ("GNOBODY");
-		GetPlayer (0).SetEntranceKey (new KeyValue ("leftcommand", KeyCode.LeftCommand));
-		GetPlayer (1).SetEntranceKey (new KeyValue ("rightcommand", KeyCode.RightCommand));
+		playerOne = new Player (0);
+		playerTwo =  new Player (1);
+		playerOne.SetEntranceKey (new KeyValue ("leftcommand", KeyCode.LeftCommand));
+		playerTwo.SetEntranceKey (new KeyValue ("rightcommand", KeyCode.RightCommand));
+		players.Add (playerOne);
+		players.Add (playerTwo);
 	}
 
 	void Update(){
@@ -28,6 +31,10 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
+	public bool PlayerOneUp(){
+		return cPlayer == playerOne;
+	}
+
 	public void KeyReceived(string s){
 		if (inCypher) {
 //			 get score.
@@ -35,8 +42,10 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
-	public void StartCypher(){
+
+	public void StartCypher(Player p){
 		inCypher = true;
+		cPlayer = p;
 //		KeyValue anchorKey = 
 		ScoreKeeper.Instance.NewPlayerStarted (players [0]);
 		ScoreKeeper.Instance.StartSequence (KeyData.Instance.GetRandomKey (), barCount);
@@ -46,6 +55,7 @@ public class GameManager : Singleton<GameManager> {
 
 	public void EndCypher(){
 		inCypher = false;
+		cPlayer = null;
 		// Scorekeeper ends. Beat keeps going, wait for player to tap in.
 	}
 
@@ -54,16 +64,38 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	public void PlayerEntranceRequested(Player p){
-		StartCoroutine ("RunPlayerEntrance");
-		Debug.Log ("Player requested entrance oooh shit! ");
+		StartCoroutine ("RunPlayerEntrance", p);
+		Debug.Log ("Player requested entrance oooh shit! "+(p==playerOne));
 	}
 
-	private IEnumerator RunPlayerEntrance(){
+	private bool loopStarted = false;
+
+	public void LoopStarted(){
+		loopStarted = true;
+	}
+
+	private IEnumerator RunPlayerEntrance(Player p){
 		Debug.Log ("Request received, waiting for entrance...");
-		while (!Metrognome.Instance.isLoopStart) {
+		while (!loopStarted) {
 			yield return null;
 		}
-		StartCypher ();
+
+		loopStarted = false;
+
+		float countDown = Metrognome.Instance.GetLoopRemainingTime();
+		while (countDown>=0) {
+			countDown -= Time.deltaTime;
+			Displays.Instance.UpdatePlayerCountdown(p==playerOne, countDown);
+			yield return null;
+		}
+		Displays.Instance.PlayerCountdownComplete ();
+//		Displays.
+		if (p==playerOne) {
+			Displays.Instance.BeginPlayerOne ();
+		} else {
+			Displays.Instance.BeginPlayerTwo();
+		}
+		StartCypher (p);
 	}
 
 	private void CancelPlayerEntrace(){

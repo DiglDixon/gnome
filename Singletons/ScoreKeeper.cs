@@ -49,17 +49,18 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		if (pBar == null) {
 			// starting a sequence
 		} else {
-			cBar.AnalyseNote (newGnote, pBar);
+			cBar.AnalyseNote (newGnote, cBar, pBar);
 		}
 		
 		if (IsAnchorInput (s)) {
+			Displays.Instance.AnchorKeyPressed();
 			AnchorCompleteBar(IsCappingInput(newGnote));
 		}
 
 
 	}
 
-	private bool IsAnchorInput(string s){
+	public bool IsAnchorInput(string s){
 		return (s == cSequence.anchorKey);
 	}
 
@@ -72,6 +73,7 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 			cSequence.AddScore (cMultiplier * cBaseScore);
 			sequencePointsText.text = cSequence.totalScore + "";
 			Displays.Instance.SetBarHit (true);
+			Displays.Instance.BarCapped();
 			Debug.Log ("CAPPED!");
 		} else {
 			Debug.Log ("not capped :(");
@@ -100,6 +102,7 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		GnoteBar pBar = cSequence.GetPreviousBar ();
 		if (pBar != null) {
 			Metrognome.Instance.SetGnoteHolders(pBar);
+			Metrognome.Instance.SetPlaybackBar(pBar);
 		}
 	}
 
@@ -111,6 +114,7 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		cCapped = false;
 		barsRemainingText.text = "" + cBarsRemaining;
 		cBarsRemaining -= 1;
+		Displays.Instance.BarComplete ();
 		Metrognome.Instance.RefreshGnoteHolders ();
 		if (cBarsRemaining < 0) {
 			SequenceFinished ();
@@ -130,11 +134,18 @@ public class ScoreKeeper : Singleton<ScoreKeeper> {
 		GameManager.Instance.EndCypher ();
 	}
 
+	private bool loopStarted = false;
+
+	public void LoopStarted(){
+		loopStarted = true;
+	}
+
 	private IEnumerator RunSequenceMonitor(){
 		yield return null;
 		while (true) {
-			if (Metrognome.Instance.isLoopStart) {
+			if (loopStarted) {
 				BarFinished ();
+				loopStarted = false;
 			}
 			yield return null;
 		}

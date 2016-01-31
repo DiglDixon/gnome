@@ -18,6 +18,7 @@ public class Metrognome : Singleton<Metrognome> {
 	private int cDivision = 0;
 	private int cBarCount = 0;
 	private int cBarLength = 64;
+	private float invBarLength = 1/64;
 
 	private int keyHitLeeway = 1;
 
@@ -51,7 +52,7 @@ public class Metrognome : Singleton<Metrognome> {
 		SetLoopLength (4f);
 		SetLoopDivisions (64);
 		ConstructGnoteHolders ();
-		SetBeat (defaultBeatBar);
+//		SetBeat (defaultBeatBar);
 		StartBeat ();
 		trackPlayer.pitch = trackPlayer.clip.length / loopLength;
 		trackPlayer.Play ();
@@ -69,6 +70,39 @@ public class Metrognome : Singleton<Metrognome> {
 
 	public bool GnoteIsProximateToCap(Gnote g){
 		return GnotePositionsAreProximate (g.GetDivision(), cBarLength);
+	}
+
+	public bool GnoteMatches(Gnote n, GnoteBar checkGnoteBar){
+		return GetMatch (n, checkGnoteBar) != null;
+	}
+	
+	public Gnote GetMatch(Gnote n, GnoteBar checkGnoteBar){
+		List<Gnote> checkGnotes = checkGnoteBar.GetGnotes();
+		Gnote g;
+		for (int k = 0; k< checkGnotes.Count; k++) {
+			g = checkGnotes[k];
+			if(g.IsMatched())
+				continue;
+			if(g.GetKey()==n.GetKey() && GnotesProximate(g, n))
+				return g;
+		}
+		return null;
+	}
+
+	public void SetPlaybackBar(GnoteBar gb){
+		ClearPlaybackGnotes ();
+		List<Gnote> gs = gb.GetGnotes ();
+		Gnote g;
+		for(int k = 0; k<gs.Count;k++){
+			g = gs[k];
+			contents[g.GetDivision()] = gs[k];
+		}
+	}
+
+	public void ClearPlaybackGnotes(){
+		for(int k = 0; k<contents.Count;k++){
+			contents[k] = null;
+		}
 	}
 
 	public void SetBeat(BeatBar b){
@@ -98,6 +132,7 @@ public class Metrognome : Singleton<Metrognome> {
 	}
 
 	private void SetBeat(int index){
+		return;
 		AudioClip[] clips = cBeat.GetBar (index);
 		for(int k = 0; k<clips.Length;k++){
 			contents[k*4].SetTone(clips[k]);
@@ -168,7 +203,7 @@ public class Metrognome : Singleton<Metrognome> {
 
 	private void SetLoopDivisions(int n){
 		loopDivisions = n;
-		cBarLength = -1;
+		SetBarLength (loopDivisions);
 	}
 
 	public void SetBarLength(){
@@ -178,6 +213,7 @@ public class Metrognome : Singleton<Metrognome> {
 	public void SetBarLength(int n){
 		Debug.Log ("Set bar length: " + n);
 		cBarLength = n;
+		invBarLength = 1f / (float)cBarLength;
 	}
 
 	public int GetBarLength(){
@@ -218,6 +254,8 @@ public class Metrognome : Singleton<Metrognome> {
 			cLoopTime = (cLoopTime + Time.deltaTime) % loopLength;
 			if(pLoopTime>cLoopTime){
 				isLoopStart = true;
+				GameManager.Instance.LoopStarted();
+				ScoreKeeper.Instance.LoopStarted();
 				HandleBarChange();
 			}else{
 				isLoopStart = false;
@@ -228,18 +266,26 @@ public class Metrognome : Singleton<Metrognome> {
 			if(cDivision!=pDivision){
 				HandleDivisionChange(pDivision, cDivision);
 			}
+			Displays.Instance.UpdateBarTimer((float)invBarLength * (float)GetDivision());
 			yield return null;
 		}
 	}
 
+	public float GetLoopRemainingTime(){
+		return loopLength - cLoopTime;
+	}
+
 	private void HandleDivisionChange(int p, int c){
 		// some sort of handler to play the sounds we may have skipped over at high speeds and/or low framerates.
-//		contents [cDivision].CallNote ();
+		Gnote g = contents [cDivision];
+		if (g != null) {
+			g.CallNoteAsPlayback ();
+		}
 	}
 
 	private void HandleBarChange(){
-		cBarCount = (cBarCount + 1) % 4;
-		SetBeat (cBarCount);
+//		cBarCount = (cBarCount + 1) % 4;
+//		SetBeat (cBarCount);
 	}
 
 }
